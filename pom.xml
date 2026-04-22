@@ -29,6 +29,7 @@
     <!--  List of child modules (we will add them one by one)  -->
     <modules>
         <module>auth-service</module>
+        <module>restaurant-service</module>
     </modules>
 
 </project>
