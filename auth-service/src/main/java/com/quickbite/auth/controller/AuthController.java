@@ -1,0 +1,68 @@
+package com.quickbite.auth.controller;
+
+import com.quickbite.auth.dto.AuthResponse;
+import com.quickbite.auth.dto.LoginRequest;
+import com.quickbite.auth.dto.RegisterRequest;
+import com.quickbite.auth.entity.User;
+import com.quickbite.auth.service.AuthService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+// @RestController = @Controller + @ResponseBody
+// Means: this class handles HTTP requests and returns JSON
+@RestController
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final AuthService authService;
+
+    // @RequestBody reads the JSON body from the request
+    // POST /api/auth/register
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        AuthResponse response = authService.register(request);
+        // ResponseEntity.status(201) = HTTP 201 Created
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // POST /api/auth/login
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response); // HTTP 200 OK
+    }
+
+    // POST /api/auth/validate
+    @PostMapping("/validate")
+    public ResponseEntity<Map<String, Object>> validateToken(@RequestBody Map<String, String> body) {
+        String token = body.get("token");
+        boolean isValid = authService.validateToken(token);
+
+        if (isValid) {
+            String email = authService.extractEmailFromToken(token);
+            User user = authService.getUserByEmail(email);
+            return ResponseEntity.ok(Map.of(
+                    "valid", true,
+                    "email", user.getEmail(),
+                    "role", user.getRole(),
+                    "userId", user.getUserId()
+            ));
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("valid", false, "message", "Token invalid or expired"));
+    }
+
+    // GET /api/auth/user/{id}
+    @GetMapping("/user/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = authService.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
+}
