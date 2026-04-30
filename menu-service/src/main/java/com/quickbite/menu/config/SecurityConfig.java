@@ -37,6 +37,11 @@ public class SecurityConfig {
                         .requestMatchers("POST", "/api/menu/**").hasRole("OWNER")
                         .requestMatchers("PUT", "/api/menu/**").hasRole("OWNER")
                         .requestMatchers("DELETE", "/api/menu/**").hasRole("OWNER")
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 // Add our JWT filter BEFORE Spring's default login filter

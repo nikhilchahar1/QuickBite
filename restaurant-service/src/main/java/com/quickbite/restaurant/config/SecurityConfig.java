@@ -31,6 +31,11 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
                         // Public: anyone can browse restaurants
                         .requestMatchers("GET", "/api/restaurants/**").permitAll()
                         // Only ADMIN can approve restaurants
