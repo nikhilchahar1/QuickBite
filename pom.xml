@@ -32,6 +32,7 @@
         <module>restaurant-service</module>
         <module>menu-service</module>
         <module>cart-service</module>
+        <module>order-service</module>
     </modules>
 
 </project>
