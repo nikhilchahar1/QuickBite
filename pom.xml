@@ -46,6 +46,7 @@
         <module>cart-service</module>
         <module>order-service</module>
         <module>notification-service</module>
+        <module>review-service</module>
     </modules>
 
 </project>
