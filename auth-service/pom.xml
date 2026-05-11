@@ -51,6 +51,12 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Eureka Client -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
         <!-- JWT — for creating login tokens -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

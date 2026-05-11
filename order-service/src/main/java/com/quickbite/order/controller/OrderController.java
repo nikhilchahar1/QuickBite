@@ -2,7 +2,6 @@ package com.quickbite.order.controller;
 
 import com.quickbite.order.dto.*;
 import com.quickbite.order.service.OrderService;
-import com.quickbite.order.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,23 +16,18 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
-    private final JwtUtil jwtUtil;
 
-    private Long getUserId(String authHeader) {
-        return jwtUtil.extractUserId(authHeader.substring(7));
-    }
-
-    private String getRole(String authHeader) {
-        return jwtUtil.extractRole(authHeader.substring(7));
+    private Long getCustomerId(@RequestHeader("X-User-Id") String userId) {
+        return Long.parseLong(userId);
     }
 
     // Customer places an order
     @PostMapping("/place")
     public ResponseEntity<OrderResponse> placeOrder(
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader("X-User-Id") String userId,
             @Valid @RequestBody PlaceOrderRequest request) {
 
-        Long customerId = getUserId(authHeader);
+        Long customerId = Long.parseLong(userId);
         OrderResponse response = orderService.placeOrder(customerId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -46,9 +40,10 @@ public class OrderController {
 
     // Customer sees their own order history
     @GetMapping("/my")
-    public ResponseEntity<List<OrderResponse>> getMyOrders(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<List<OrderResponse>> getMyOrders(
+            @RequestHeader("X-User-Id") String userId) {
 
-        Long customerId = getUserId(authHeader);
+        Long customerId = Long.parseLong(userId);
         return ResponseEntity.ok(orderService.getOrdersByCustomer(customerId));
     }
 
@@ -75,13 +70,12 @@ public class OrderController {
     @PutMapping("/status/{orderId}")
     public ResponseEntity<OrderResponse> updateStatus(
             @PathVariable Long orderId,
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader("X-User-Id") String userId,
+            @RequestHeader("X-User-Role") String role,
             @Valid @RequestBody UpdateStatusRequest request) {
 
-        Long actorId   = getUserId(authHeader);
-        String actorRole = getRole(authHeader);
-
-        return ResponseEntity.ok(orderService.updateStatus(orderId, request, actorId, actorRole));
+        Long actorId   = Long.parseLong(userId);
+        return ResponseEntity.ok(orderService.updateStatus(orderId, request, actorId, role));
     }
 
     // Assign a delivery agent to an order
@@ -96,9 +90,9 @@ public class OrderController {
     @PutMapping("/cancel/{orderId}")
     public ResponseEntity<OrderResponse> cancelOrder(
             @PathVariable Long orderId,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader("X-User-Id") String userId) {
 
-        Long customerId = getUserId(authHeader);
+        Long customerId = Long.parseLong(userId);
         return ResponseEntity.ok(orderService.cancelOrder(orderId, customerId));
     }
 
@@ -106,9 +100,9 @@ public class OrderController {
     @PostMapping("/reorder/{orderId}")
     public ResponseEntity<OrderResponse> reorder(
             @PathVariable Long orderId,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader("X-User-Id") String userId) {
 
-        Long customerId = getUserId(authHeader);
+        Long customerId = Long.parseLong(userId);
         return ResponseEntity.ok(orderService.reorder(orderId, customerId));
     }
 

@@ -3,7 +3,6 @@ package com.quickbite.restaurant.controller;
 import com.quickbite.restaurant.dto.RestaurantRequest;
 import com.quickbite.restaurant.entity.Restaurant;
 import com.quickbite.restaurant.service.RestaurantService;
-import com.quickbite.restaurant.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,18 +17,15 @@ import java.util.List;
 public class RestaurantController {
 
     private final RestaurantService restaurantService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping
     public ResponseEntity<Restaurant> register(
             @Valid @RequestBody RestaurantRequest request,
-            @RequestHeader("Authorization") String authHeader) {
+            @RequestHeader("X-User-Id") String userId) {
 
-        // Extract the token and get ownerId
-        String token = authHeader.substring(7);
-        Long ownerId = jwtUtil.extractUserId(token);
+        Long recipientId = Long.parseLong(userId);
 
-        Restaurant restaurant = restaurantService.registerRestaurant(request, ownerId);
+        Restaurant restaurant = restaurantService.registerRestaurant(request, recipientId);
         return ResponseEntity.status(HttpStatus.CREATED).body(restaurant);
     }
 
@@ -75,10 +71,9 @@ public class RestaurantController {
     // GET /api/restaurants/my — owner sees their restaurants
     @GetMapping("/my")
     public ResponseEntity<List<Restaurant>> getMyRestaurants(
-            @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.substring(7);
-        Long ownerId = jwtUtil.extractUserId(token);
-        return ResponseEntity.ok(restaurantService.getByOwner(ownerId));
+            @RequestHeader("X-User-Id") String userId) {
+        Long recipientId = Long.parseLong(userId);
+        return ResponseEntity.ok(restaurantService.getByOwner(recipientId));
     }
 
     // GET /api/restaurants/pending — admin sees pending restaurants
@@ -99,11 +94,10 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantService.toggleOpen(id));
     }
 
-    // PUT /api/restaurants/{id} — owner updates details
+    //owner updates details
     @PutMapping("/{id}")
     public ResponseEntity<Restaurant> update(
-            @PathVariable Long id,
-            @Valid @RequestBody RestaurantRequest request) {
+            @PathVariable Long id, @Valid @RequestBody RestaurantRequest request) {
         return ResponseEntity.ok(restaurantService.updateRestaurant(id, request));
     }
 
