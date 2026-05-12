@@ -5,6 +5,7 @@ import com.quickbite.auth.dto.LoginRequest;
 import com.quickbite.auth.dto.RegisterRequest;
 import com.quickbite.auth.entity.User;
 import com.quickbite.auth.repository.UserRepository;
+import com.quickbite.auth.exception.*;
 import com.quickbite.auth.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +25,7 @@ public class AuthServiceImpl implements AuthService {
 
         // Step 1: Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new BadRequestException("Email already registered");
         }
 
         // Step 2: Create a new User entity
@@ -66,17 +67,17 @@ public class AuthServiceImpl implements AuthService {
 
         // Step 1: Find user by email
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User", "email", request.getEmail()));
 
         // Step 2: Check if account is active
         if (!user.isActive()) {
-            throw new RuntimeException("Account is suspended");
+            throw new BadRequestException("Account is suspended");
         }
 
         // Step 3: Compare the entered password with the hashed one
-        // passwordEncoder.matches("plain", "hashed") → true/false
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid password");
+            throw new BadRequestException("Invalid password");
         }
 
         // Step 4: Generate JWT token
@@ -99,13 +100,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
     }
 
     @Override
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User", "id", userId));
     }
 
     @Override
