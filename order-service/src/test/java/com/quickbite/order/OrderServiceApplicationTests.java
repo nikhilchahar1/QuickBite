@@ -10,6 +10,8 @@ import com.quickbite.order.exception.ResourceNotFoundException;
 import com.quickbite.order.messaging.OrderEventPublisher;
 import com.quickbite.order.repository.OrderRepository;
 import com.quickbite.order.service.OrderServiceImpl;
+import static org.mockito.Mockito.doNothing;
+import com.quickbite.order.messaging.OrderEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class OrderServiceTest {
+public class OrderServiceApplicationTests {
 
     @Mock
     private OrderRepository orderRepository;
@@ -115,6 +117,7 @@ class OrderServiceTest {
     @Test
     void placeOrder_ShouldCreateOrder_WhenValidRequest() {
 
+        doNothing().when(eventPublisher).publish(any(OrderEvent.class));
         when(orderRepository.save(any(Order.class)))
                 .thenReturn(placedOrder);
 
@@ -166,6 +169,7 @@ class OrderServiceTest {
     @Test
     void updateStatus_ShouldConfirm_WhenPlaced() {
 
+        doNothing().when(eventPublisher).publish(any(OrderEvent.class));
         when(orderRepository.findById(1L))
                 .thenReturn(Optional.of(placedOrder));
         when(orderRepository.save(any(Order.class)))
@@ -213,6 +217,7 @@ class OrderServiceTest {
     @Test
     void cancelOrder_ShouldCancel_WhenPlaced() {
 
+        doNothing().when(eventPublisher).publish(any(OrderEvent.class));
         when(orderRepository.findById(1L))
                 .thenReturn(Optional.of(placedOrder));
         when(orderRepository.save(any(Order.class)))
