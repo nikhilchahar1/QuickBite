@@ -48,6 +48,7 @@
         <module>notification-service</module>
         <module>review-service</module>
         <module>service-registry</module>
+        <module>api-gateway</module>
     </modules>
 
 </project>
