@@ -3,6 +3,7 @@ package com.quickbite.restaurant.service;
 import com.quickbite.restaurant.dto.RestaurantRequest;
 import com.quickbite.restaurant.entity.Restaurant;
 import com.quickbite.restaurant.repository.RestaurantRepository;
+import com.quickbite.restaurant.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +43,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Override
     public Restaurant getById(Long id) {
         return restaurantRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant", "id", id));
     }
 
     @Override
@@ -98,10 +99,14 @@ public class RestaurantServiceImpl implements RestaurantService {
         restaurant.setCuisine(request.getCuisine());
         restaurant.setAddress(request.getAddress());
         restaurant.setCity(request.getCity());
-        if (request.getLatitude() != null) restaurant.setLatitude(request.getLatitude());
-        if (request.getLongitude() != null) restaurant.setLongitude(request.getLongitude());
-        if (request.getPhone() != null) restaurant.setPhone(request.getPhone());
-        if (request.getImageUrl() != null) restaurant.setImageUrl(request.getImageUrl());
+        if (request.getLatitude() != null)
+            restaurant.setLatitude(request.getLatitude());
+        if (request.getLongitude() != null)
+            restaurant.setLongitude(request.getLongitude());
+        if (request.getPhone() != null)
+            restaurant.setPhone(request.getPhone());
+        if (request.getImageUrl() != null)
+            restaurant.setImageUrl(request.getImageUrl());
         if (request.getDeliveryRadius() != null)
             restaurant.setDeliveryRadius(request.getDeliveryRadius());
         if (request.getMinOrderAmount() != null)
