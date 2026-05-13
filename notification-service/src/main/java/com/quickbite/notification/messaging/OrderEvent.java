@@ -22,4 +22,7 @@ public class OrderEvent implements Serializable {
     private Double finalAmount;
     private String deliveryAddress;
     private LocalDateTime eventTimestamp;
+    private String customerEmail;
+    private String customerName;
+
 }

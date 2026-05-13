@@ -61,8 +61,13 @@ public class OrderServiceImpl implements OrderService {
         Order saved = orderRepository.save(order);
 
         eventPublisher.publish(OrderEvent.placed(
-                saved.getOrderId(), customerId, saved.getRestaurantId(),
-                saved.getPaymentMode(), saved.getFinalAmount()
+                saved.getOrderId(),
+                customerId,
+                saved.getRestaurantId(),
+                saved.getPaymentMode(),
+                saved.getFinalAmount(),
+                request.getCustomerEmail(),
+                request.getCustomerName()
         ));
 
         return OrderResponse.from(saved, "Order placed successfully");

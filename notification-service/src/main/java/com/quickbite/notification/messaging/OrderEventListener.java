@@ -3,6 +3,7 @@ package com.quickbite.notification.messaging;
 import com.quickbite.notification.dto.SendNotificationRequest;
 import com.quickbite.notification.enums.NotificationChannel;
 import com.quickbite.notification.enums.NotificationType;
+import com.quickbite.notification.service.EmailService;
 import com.quickbite.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,8 @@ public class OrderEventListener {
 
     private final NotificationService notificationService;
 
+    private final EmailService emailService;
+
     @RabbitListener(queues = "${rabbitmq.queue}")
     public void handleOrderEvent(OrderEvent event) {
 
@@ -25,20 +28,28 @@ public class OrderEventListener {
             // Route to correct notification based on event type
             switch (event.getEventType()) {
 
-                case "order.placed" ->
-                        sendNotification(
-                                event.getCustomerId(),
-                                event.getOrderId(),
-                                NotificationType.ORDER_PLACED,
-                                "Order Placed Successfully! 🎉",
-                                String.format(
-                                        "Your order #%d has been placed. " +
-                                                "Total: Rs.%.0f via %s. " +
-                                                "We will notify you when confirmed.",
-                                        event.getOrderId(),
-                                        event.getFinalAmount(),
-                                        event.getPaymentMode())
+                case "order.placed" -> {
+                    sendNotification(
+                            event.getCustomerId(),
+                            event.getOrderId(),
+                            NotificationType.ORDER_PLACED,
+                            "Order Placed Successfully! 🎉",
+                            String.format(
+                                    "Your order #%d has been placed. " +
+                                            "Total: Rs.%.0f via %s. " +
+                                            "We will notify you when confirmed.",
+                                    event.getOrderId(),
+                                    event.getFinalAmount(),
+                                    event.getPaymentMode())
+                    );
+
+                if (event.getCustomerEmail() != null && !event.getCustomerEmail().isBlank()) {
+                    emailService.sendOrderPlacedEmail(
+                            event, event.getCustomerEmail(),
+                            event.getCustomerName() != null ? event.getCustomerName() : "Customer"
                         );
+                    }
+                }
 
                 case "order.confirmed" ->
                         sendNotification(

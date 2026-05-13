@@ -28,11 +28,14 @@ public class OrderEvent implements Serializable {
     private Double finalAmount;
     private String deliveryAddress;
     private LocalDateTime eventTimestamp;
+    private String customerEmail;
+    private String customerName;
 
     // Factory methods — convenient ways to create events for each order lifecycle stage
 
     public static OrderEvent placed(Long orderId, Long customerId, Long restaurantId,
-                                    PaymentMode paymentMode, Double finalAmount) {
+                                    PaymentMode paymentMode, Double finalAmount, String customerEmail,
+                                    String customerName) {
         OrderEvent event = new OrderEvent();
         event.setEventType("order.placed");
         event.setOrderId(orderId);
@@ -41,6 +44,8 @@ public class OrderEvent implements Serializable {
         event.setOrderStatus(OrderStatus.PLACED);
         event.setPaymentMode(paymentMode);
         event.setFinalAmount(finalAmount);
+        event.setCustomerEmail(customerEmail);
+        event.setCustomerName(customerName);
         event.setEventTimestamp(LocalDateTime.now());
         return event;
     }

@@ -29,6 +29,12 @@ public class PlaceOrderRequest {
     @NotNull(message = "Final amount is required")
     private Double finalAmount;
 
+    @NotBlank(message = "Customer email is required")
+    private String customerEmail;
+
+    @NotBlank(message = "Customer name is required")
+    private String customerName;
+
     private String appliedPromoCode;
     private Integer estimatedDeliveryMin;
 
