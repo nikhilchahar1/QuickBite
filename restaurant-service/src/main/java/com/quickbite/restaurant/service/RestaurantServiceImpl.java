@@ -2,6 +2,7 @@ package com.quickbite.restaurant.service;
 
 import com.quickbite.restaurant.dto.RestaurantRequest;
 import com.quickbite.restaurant.entity.Restaurant;
+import com.quickbite.restaurant.exception.BadRequestException;
 import com.quickbite.restaurant.repository.RestaurantRepository;
 import com.quickbite.restaurant.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -84,16 +85,23 @@ public class RestaurantServiceImpl implements RestaurantService {
     }
 
     @Override
-    public Restaurant toggleOpen(Long id) {
+    public Restaurant toggleOpen(Long id, Long requestingOwnerId) {
         Restaurant restaurant = getById(id);
+        if (!restaurant.getOwnerId().equals(requestingOwnerId)) {
+            throw new BadRequestException("You can only toggle your own restaurant");
+        }
         // Flip the value: if open→close, if closed→open
         restaurant.setOpen(!restaurant.isOpen());
         return restaurantRepository.save(restaurant);
     }
 
     @Override
-    public Restaurant updateRestaurant(Long id, RestaurantRequest request) {
+    public Restaurant updateRestaurant(Long id, RestaurantRequest request, Long requestingOwnerId) {
         Restaurant restaurant = getById(id);
+
+        if (!restaurant.getOwnerId().equals(requestingOwnerId)) {
+            throw new BadRequestException("You can only update your own restaurant");
+        }
         restaurant.setName(request.getName());
         restaurant.setDescription(request.getDescription());
         restaurant.setCuisine(request.getCuisine());

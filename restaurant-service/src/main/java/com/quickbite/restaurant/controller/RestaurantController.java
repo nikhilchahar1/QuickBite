@@ -90,15 +90,20 @@ public class RestaurantController {
 
     // PUT /api/restaurants/toggle/{id} — owner opens/closes
     @PutMapping("/toggle/{id}")
-    public ResponseEntity<Restaurant> toggleOpen(@PathVariable Long id) {
-        return ResponseEntity.ok(restaurantService.toggleOpen(id));
+    public ResponseEntity<Restaurant> toggleOpen(
+            @PathVariable Long id, @RequestHeader("X-User-Id") String userId) {
+        Long ownerId = Long.parseLong(userId);
+        return ResponseEntity.ok(restaurantService.toggleOpen(id, ownerId));
     }
 
     //owner updates details
     @PutMapping("/{id}")
     public ResponseEntity<Restaurant> update(
-            @PathVariable Long id, @Valid @RequestBody RestaurantRequest request) {
-        return ResponseEntity.ok(restaurantService.updateRestaurant(id, request));
+            @PathVariable Long id,
+            @Valid @RequestBody RestaurantRequest request,
+            @RequestHeader("X-User-Id") String userId) {
+        Long ownerId = Long.parseLong(userId);
+        return ResponseEntity.ok(restaurantService.updateRestaurant(id, request, ownerId));
     }
 
     // DELETE /api/restaurants/{id}

@@ -49,13 +49,19 @@ public class OrderController {
 
     // Owner sees all orders for their restaurant
     @GetMapping("/restaurant/{restaurantId}")
-    public ResponseEntity<List<OrderResponse>> getRestaurantOrders(@PathVariable Long restaurantId) {
+    public ResponseEntity<List<OrderResponse>> getRestaurantOrders(
+            @PathVariable Long restaurantId,
+            @RequestHeader("X-User-Id") String userId,
+            @RequestHeader("X-User-Role") String role) {
         return ResponseEntity.ok(orderService.getOrdersByRestaurant(restaurantId));
     }
 
     // Owner sees only new PLACED orders (the incoming queue)
     @GetMapping("/restaurant/{restaurantId}/incoming")
-    public ResponseEntity<List<OrderResponse>> getIncoming(@PathVariable Long restaurantId) {
+    public ResponseEntity<List<OrderResponse>> getIncoming(
+            @PathVariable Long restaurantId,
+            @RequestHeader("X-User-Id") String userId,
+            @RequestHeader("X-User-Role") String role) {
         return ResponseEntity.ok(orderService.getIncomingOrders(restaurantId));
     }
 
@@ -74,7 +80,7 @@ public class OrderController {
             @RequestHeader("X-User-Role") String role,
             @Valid @RequestBody UpdateStatusRequest request) {
 
-        Long actorId   = Long.parseLong(userId);
+        Long actorId = Long.parseLong(userId);
         return ResponseEntity.ok(orderService.updateStatus(orderId, request, actorId, role));
     }
 

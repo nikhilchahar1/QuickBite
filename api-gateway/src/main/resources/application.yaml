@@ -28,25 +28,47 @@ spring:
           uri: lb://auth-service
           predicates:
             - Path=/api/auth/**
-          filters:
-            # No JWT needed for auth routes — public
-            - name: RemoveRequestHeader
-              args:
-                name: Cookie
+#          filters:
+#            # No JWT needed for auth routes — public
+#            - name: RemoveRequestHeader
+#              args:
+#                name: Cookie
 
         # RESTAURANT SERVICE
-        - id: restaurant-service
+        - id: restaurant-service-protected-get
+          uri: lb://restaurant-service
+          predicates:
+            - Path=/api/restaurants/pending,/api/restaurants/my
+            - Method=GET
+          filters:
+            - AuthenticationFilter
+
+        - id: restaurant-service-public
           uri: lb://restaurant-service
           predicates:
             - Path=/api/restaurants/**
+            - Method=GET
+
+        - id: restaurant-service-protected
+          uri: lb://restaurant-service
+          predicates:
+            - Path=/api/restaurants/**
+            - Method=POST, PUT, DELETE
           filters:
             - AuthenticationFilter
 
         # MENU SERVICE
-        - id: menu-service
+        - id: menu-service-public
           uri: lb://menu-service
           predicates:
             - Path=/api/menu/**
+            - Method=GET
+
+        - id: menu-service-protected
+          uri: lb://menu-service
+          predicates:
+            - Path=/api/menu/**
+            - Method=POST, PUT, DELETE
           filters:
             - AuthenticationFilter
 
@@ -75,10 +97,17 @@ spring:
             - AuthenticationFilter
 
         # REVIEW SERVICE
-        - id: review-service
+        - id: review-service-public
           uri: lb://review-service
           predicates:
             - Path=/api/reviews/**
+            - Method=GET
+
+        - id: review-service-protected
+          uri: lb://review-service
+          predicates:
+            - Path=/api/reviews/**
+            - Method=POST, PUT, DELETE
           filters:
             - AuthenticationFilter
 

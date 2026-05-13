@@ -25,9 +25,9 @@ public interface RestaurantService {
 
     Restaurant approveRestaurant(Long id);
 
-    Restaurant toggleOpen(Long id);
+    Restaurant toggleOpen(Long id, Long requestingOwnerId);
 
-    Restaurant updateRestaurant(Long id, RestaurantRequest request);
+    Restaurant updateRestaurant(Long id, RestaurantRequest request, Long requestingOwnerId);
 
     void deleteRestaurant(Long id);
 
