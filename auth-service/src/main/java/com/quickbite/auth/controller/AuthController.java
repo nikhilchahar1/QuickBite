@@ -23,7 +23,6 @@ public class AuthController {
     private final AuthService authService;
 
     // @RequestBody reads the JSON body from the request
-    // POST /api/auth/register
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
@@ -65,4 +64,20 @@ public class AuthController {
         User user = authService.getUserById(id);
         return ResponseEntity.ok(user);
     }
+
+    // Returns the URL to redirect the user to Google login
+    @GetMapping("/oauth2/google-url")
+    public ResponseEntity<Map<String, String>> getGoogleLoginUrl() {
+        return ResponseEntity.ok(Map.of(
+                "url", "http://localhost:8081/oauth2/authorization/google"
+        ));
+    }
+
+    // Called if Google login fails
+    @GetMapping("/oauth2/failure")
+    public ResponseEntity<Map<String, String>> oauthFailure() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("message", "Google login failed. Please try again."));
+    }
+
 }

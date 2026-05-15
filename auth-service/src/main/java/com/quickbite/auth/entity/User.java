@@ -27,7 +27,7 @@ public class User {
     private String email;
 
     // We store hashed password, never plain text
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String passwordHash;
 
     @Column
@@ -49,13 +49,19 @@ public class User {
     @Column
     private String profilePicUrl;
 
+    @Column(unique = true)
+    private String googleId;
+
+    @Column
+    private String authProvider;
+
     // @PrePersist runs this method automatically
     // just before the record is saved to the database
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
-        if (this.role == null) {
-            this.role = "CUSTOMER";
-        }
+        if (this.role == null) this.role = "CUSTOMER";
+        if (this.authProvider == null) this.authProvider = "LOCAL";
     }
+
 }

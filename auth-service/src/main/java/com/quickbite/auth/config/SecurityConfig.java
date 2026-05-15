@@ -18,32 +18,36 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final HeaderAuthFilter headerAuthFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                        // IMPORTANT: OAuth2 needs a session briefly during the redirect flow
+                        // We use IF_REQUIRED instead of STATELESS for auth-service only
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
-                        // Public — anyone can register and login
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
+                                "/api/auth/validate",
+                                "/login/oauth2/**",
+                                "/oauth2/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
-
-                        // Validate token — only services/gateway call this
-                        .requestMatchers("/api/auth/validate").permitAll()
-
-                        // Get user by ID — authenticated users only
                         .requestMatchers("/api/auth/user/**").authenticated()
-
-                        // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(headerAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                // Add existing JWT header filter
+                .addFilterBefore(headerAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                // Add OAuth2 login support
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2SuccessHandler)
+                        .failureUrl("/api/auth/oauth2/failure")
+                );
 
         return http.build();
     }
