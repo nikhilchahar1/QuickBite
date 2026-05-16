@@ -48,6 +48,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
             String email = jwtUtil.extractEmail(token);
             String role = jwtUtil.extractRole(token);
             Long userId = jwtUtil.extractUserId(token);
+            String name = jwtUtil.extractName(token);
 
             log.info("Authenticated request from user: {} role: {}", email, role);
 
@@ -57,6 +58,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                             .header("X-User-Id", userId.toString())
                             .header("X-User-Email", email)
                             .header("X-User-Role", role)
+                            .header("X-User-Name",  name)
                     )
                     .build();
 

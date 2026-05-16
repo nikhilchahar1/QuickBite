@@ -58,6 +58,10 @@ public class JwtUtil {
         }
     }
 
+    public String extractName(String token) {
+        return getClaims(token).get("fullName", String.class);
+    }
+
     // getClaims: decodes the token and returns all data inside it
     private Claims getClaims(String token) {
         return Jwts.parser()

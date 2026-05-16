@@ -111,6 +111,21 @@ spring:
           filters:
             - AuthenticationFilter
 
+        # ADD in routes section:
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - AuthenticationFilter
+
+        - id: wallet-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/wallet/**
+          filters:
+            - AuthenticationFilter
+
 # Eureka registration
 eureka:
   client:
