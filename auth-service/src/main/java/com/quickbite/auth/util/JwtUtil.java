@@ -24,11 +24,12 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateToken(String email, String role, Long userId) {
+    public String generateToken(String email, String role, Long userId, String fullName) {
         return Jwts.builder()
                 .subject(email)
                 .claim("role", role)
                 .claim("userId", userId)
+                .claim("fullName", fullName)
                 .issuedAt(new Date())        // when was it created
                 .expiration(new Date(System.currentTimeMillis() + expiration)) // when it expires
                 .signWith(getSigningKey())   // sign it with our secret

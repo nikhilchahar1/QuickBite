@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
         user.setPhone(request.getPhone());
 
         // Step 4: Set role (default to CUSTOMER if not provided)
-        user.setRole(request.getRole() != null ? request.getRole() : "CUSTOMER");
+        user.setRole("CUSTOMER");
 
         // Step 5: Save to database
         User savedUser = userRepository.save(user);
@@ -48,7 +48,8 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtUtil.generateToken(
                 savedUser.getEmail(),
                 savedUser.getRole(),
-                savedUser.getUserId()
+                savedUser.getUserId(),
+                savedUser.getFullName()
         );
 
         // Step 7: Return response with token
@@ -84,7 +85,8 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtUtil.generateToken(
                 user.getEmail(),
                 user.getRole(),
-                user.getUserId()
+                user.getUserId(),
+                user.getFullName()
         );
 
         return new AuthResponse(
@@ -118,5 +120,13 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String extractEmailFromToken(String token) {
         return jwtUtil.extractEmail(token);
+    }
+
+    @Override
+    public void changeUserRole(String email, String newRole) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
+        user.setRole(newRole);
+        userRepository.save(user);
     }
 }

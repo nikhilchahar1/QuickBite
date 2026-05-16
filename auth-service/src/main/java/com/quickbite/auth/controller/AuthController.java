@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 // @RestController = @Controller + @ResponseBody
@@ -78,6 +79,42 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> oauthFailure() {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("message", "Google login failed. Please try again."));
+    }
+
+    // POST /api/auth/admin/change-role
+    // Only OWNER or ADMIN can call this
+    @PostMapping("/admin/change-role")
+    public ResponseEntity<Map<String, String>> changeRole(
+            @RequestBody Map<String, String> body,
+            @RequestHeader("X-User-Role") String callerRole) {
+
+        // Only OWNER or ADMIN can change roles
+        if (!callerRole.equals("OWNER") && !callerRole.equals("ADMIN")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Access denied"));
+        }
+
+        String targetEmail = body.get("email");
+        String newRole = body.get("role");
+
+        // Validate allowed roles
+        if (!List.of("CUSTOMER", "OWNER", "ADMIN", "AGENT").contains(newRole)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Invalid role: " + newRole));
+        }
+
+        // Extra guard — only OWNER can assign OWNER role
+        if (newRole.equals("OWNER") && !callerRole.equals("OWNER")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Only OWNER can assign OWNER role"));
+        }
+
+        authService.changeUserRole(targetEmail, newRole);
+        return ResponseEntity.ok(Map.of(
+                "message", "Role updated successfully",
+                "email", targetEmail,
+                "newRole", newRole
+        ));
     }
 
 }

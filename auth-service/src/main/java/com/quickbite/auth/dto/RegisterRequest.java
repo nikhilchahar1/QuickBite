@@ -22,6 +22,4 @@ public class RegisterRequest {
 
     private String phone;
 
-    // Role is optional (default - customer)
-    private String role;
 }

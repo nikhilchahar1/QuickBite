@@ -49,7 +49,6 @@ public class AuthServiceTest {
         registerRequest.setFullName("Test User");
         registerRequest.setEmail("test@example.com");
         registerRequest.setPassword("password123");
-        registerRequest.setRole("CUSTOMER");
     }
 
     @Test

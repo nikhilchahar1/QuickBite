@@ -18,4 +18,6 @@ public interface AuthService {
     boolean validateToken(String token);
 
     String extractEmailFromToken(String token);
+
+    void changeUserRole(String email, String newRole);
 }
