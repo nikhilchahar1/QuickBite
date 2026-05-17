@@ -16,23 +16,23 @@ public class DataSeeder implements ApplicationRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${owner.email}")
-    private String ownerEmail;
+    @Value("${admin.email}")
+    private String adminEmail;
 
-    @Value("${owner.password}")
-    private String ownerPassword;
+    @Value("${admin.password}")
+    private String adminPassword;
 
     @Override
     public void run(ApplicationArguments args) {
-        if (!userRepository.existsByEmail(ownerEmail)) {
-            User owner = new User();
-            owner.setEmail(ownerEmail);
-            owner.setFullName("QuickBite Owner");
-            owner.setPasswordHash(passwordEncoder.encode(ownerPassword));
-            owner.setRole("OWNER");
-            owner.setAuthProvider("LOCAL");
-            userRepository.save(owner);
-            System.out.println("✅ Owner account seeded: " + ownerEmail);
+        if (!userRepository.existsByEmail(adminEmail)) {
+            User admin = new User();
+            admin.setEmail(adminEmail);
+            admin.setFullName("Nikhil Chahar");
+            admin.setPasswordHash(passwordEncoder.encode(adminPassword));
+            admin.setRole("ADMIN");
+            admin.setAuthProvider("LOCAL");
+            userRepository.save(admin);
+            System.out.println("✅ Admin account seeded: " + adminEmail);
         }
     }
 }

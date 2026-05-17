@@ -81,15 +81,14 @@ public class AuthController {
                 .body(Map.of("message", "Google login failed. Please try again."));
     }
 
-    // POST /api/auth/admin/change-role
-    // Only OWNER or ADMIN can call this
     @PostMapping("/admin/change-role")
     public ResponseEntity<Map<String, String>> changeRole(
             @RequestBody Map<String, String> body,
-            @RequestHeader("X-User-Role") String callerRole) {
+            @RequestHeader("X-User-Role") String callerRole,
+            @RequestHeader("X-User-Email") String callerEmail) {  // ← add caller's email
 
-        // Only OWNER or ADMIN can change roles
-        if (!callerRole.equals("OWNER") && !callerRole.equals("ADMIN")) {
+        // Only ADMIN or OWNER can change roles
+        if (!callerRole.equals("ADMIN") && !callerRole.equals("OWNER")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("message", "Access denied"));
         }
@@ -98,15 +97,23 @@ public class AuthController {
         String newRole = body.get("role");
 
         // Validate allowed roles
-        if (!List.of("CUSTOMER", "OWNER", "ADMIN", "AGENT").contains(newRole)) {
+        if (!List.of("CUSTOMER", "OWNER", "AGENT", "ADMIN").contains(newRole)) {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Invalid role: " + newRole));
         }
 
-        // Extra guard — only OWNER can assign OWNER role
-        if (newRole.equals("OWNER") && !callerRole.equals("OWNER")) {
+        // OWNER can only assign CUSTOMER or AGENT
+        if (callerRole.equals("OWNER") &&
+                !List.of("CUSTOMER", "AGENT").contains(newRole)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("message", "Only OWNER can assign OWNER role"));
+                    .body(Map.of("message", "OWNER can only assign CUSTOMER or AGENT roles"));
+        }
+
+        // Only ADMIN can assign ADMIN or OWNER roles
+        if (List.of("ADMIN", "OWNER").contains(newRole) &&
+                !callerRole.equals("ADMIN")) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", "Only ADMIN can assign ADMIN or OWNER roles"));
         }
 
         authService.changeUserRole(targetEmail, newRole);
